@@ -144,29 +144,30 @@ public class BlockCommit {
 			int txPoolSize = gatewayNode.getTransactionsPool().size();
 			ArrayList<Transactions> txList = new ArrayList<>();
 			
+			// Any transactions in the pool
 			if (txPoolSize > 0) {
 				int txCount = Math.min(InputConfig.getTxListSize(), txPoolSize);
 				
+				// Append any valid transaction to the transaction list
 				for (int i = 0; i<txCount ;i++) {
 					Transactions tx = gatewayNode.getTransactionsPool().get(i);
-					
 					if (tx.getTimestamp()[1] <= txTokenTime) {
 						txList.add(tx);
 					}
+				}
 					
-					if (txList.size() > 0) {
-						Scheduler.appendTxListEvent(txList, gatewayNode.getId(), txTokenTime, 0);
-						scheduleEventPropTxList(txList, (ArrayList<Object>) gatewayNode.getGatewayIds(), txTokenTime); // <<<<<<<----- NEEDS ATTENTION!!
+				if (txList.size() > 0) {
+					Scheduler.appendTxListEvent(txList, gatewayNode.getId(), txTokenTime, 0);
+					scheduleEventPropTxList(txList, (ArrayList<Object>) gatewayNode.getGatewayIds(), txTokenTime); // <<<<<<<----- NEEDS ATTENTION!!
 						
-						for (Transactions t : txList) {
-							gatewayNode.getTransactionsPool().remove(t);
-						}
-						
-						if (InputConfig.getMaxTxListSize() < txList.size()) {
-							InputConfig.setMaxTxListSize(txList.size());
-						}
-						txListInserted = true;
+					for (Transactions t : txList) {
+						gatewayNode.getTransactionsPool().remove(t);
 					}
+						
+					if (InputConfig.getMaxTxListSize() < txList.size()) {
+						InputConfig.setMaxTxListSize(txList.size());
+					}
+					txListInserted = true;
 				}
 			}
 			
