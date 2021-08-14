@@ -31,7 +31,7 @@ public class Node {
 	// Generate the genesis block and append it to the local blockchain for all nodes
 	public static void generateGenesisBlock() {
 		
-		for (int i=0; i<InputConfig.getGn()-1; i++) {
+		for (int i=0; i<InputConfig.getGn(); i++) {
 			InputConfig.getNODES().get(i).getBlockchain().add(new Block());
 		}
 		
@@ -68,9 +68,6 @@ public class Node {
 		return gatewayIDs;
 	}
 	
-	public Object getGatewayIdss() {
-		return gatewayIDs;
-	}
 
 	/**
 	 * @return the blockchain

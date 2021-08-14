@@ -5,7 +5,7 @@ public class Transactions {
 	private long id = 0;
 	private double[] timestamp = null;
 	private int sender = 0;
-	private Object to = 0;
+	private String to;
 	private int value = 0;
 	private double size = 0.000546;
 	private int fee = 0;
@@ -43,21 +43,21 @@ public class Transactions {
 		return sender;
 	}
 	/**
-	 * @param sender the sender to set
+	 * @param id the sender to set
 	 */
-	public void setSender(int sender) {
-		this.sender = sender;
+	public void setSender(int id) {
+		this.sender = id;
 	}
 	/**
 	 * @return the to
 	 */
-	public Object getTo() {
+	public String getTo() {
 		return to;
 	}
 	/**
 	 * @param object the to to set
 	 */
-	public void setTo(Object to) {
+	public void setTo(String to) {
 		this.to = to;
 	}
 	@Override

@@ -14,23 +14,35 @@ import Simulator.Statistics;
 
 public class BlockCommit {
 	
-	public static void handleEvent(Event event) throws CloneNotSupportedException {
+	public static void handleEvent(Event event) {
 		if (event.getType() == "create_block") {
 			BlockCommit.createBlock(event);
 		} else if (event.getType() =="append_txlist") {
-			BlockCommit.appendTxList(event);
+			try {
+				BlockCommit.appendTxList(event);
+			} catch (CloneNotSupportedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else if (event.getType() =="receive_tx_list") {
-			BlockCommit.receiveTxList(event);
+			try {
+				BlockCommit.receiveTxList(event);
+			} catch (CloneNotSupportedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
 	
 	private static void createBlock(Event event) {
-		Statistics.total_blocks++;
+		Statistics.total_blocks +=1;
 		int index = InputConfig.getGATEWAY_IDS().indexOf(event.getBlock().getReceiverGatewayId());
 		Node node = InputConfig.getNODES().get(index);
+		System.out.println(index);
 		event.getBlock().setPrevious(node.lastBlock().getId());
 		node.getBlockchain().add(event.getBlock());
+		System.out.println(Statistics.total_blocks);
 	}
 	
 	
@@ -46,7 +58,7 @@ public class BlockCommit {
 	private static void appendTxList(Event event) throws CloneNotSupportedException {
 		int index = InputConfig.getGATEWAY_IDS().indexOf(event.getNodeId());
 		Node gatewayNode = InputConfig.getNODES().get(index);
-		double txInsertionDelay = Math.log(1-Math.random()/(InputConfig.getInsertTxDelay()));
+		double txInsertionDelay = -Math.log(1-Math.random())/(1/InputConfig.getInsertTxDelay());
 
 		double txInsertionDelayIncrement = txInsertionDelay;
 		int txCount = 1;
@@ -64,7 +76,7 @@ public class BlockCommit {
 		int index = InputConfig.getGATEWAY_IDS().indexOf(event.getNodeId());
 		Node gatewayNode = InputConfig.getNODES().get(index);
 		double gatewayPropDelay = Network.txListPropDelay();
-		double txInsertionDelay = Math.log(1-Math.random()/(InputConfig.getInsertTxDelay()));
+		double txInsertionDelay = -Math.log(1-Math.random())/(1/InputConfig.getInsertTxDelay());
 		double txInsertionDelayIncrement = txInsertionDelay;
 		int txCount = 1;
 		for (Transactions tx : event.getBlock().getTransactions()) {
@@ -96,7 +108,7 @@ public class BlockCommit {
 	//Checks if all transactions are processed
 	private static boolean transactionsProcessed() {
 		boolean processed = true;
-		for (int i =0; i< InputConfig.getGn()-1; i++) {
+		for (int i =0; i< InputConfig.getGn(); i++) {
 			if (InputConfig.getNODES().get(i).getTransactionsPool().size() > 0) {
 				processed = false;
 				break;

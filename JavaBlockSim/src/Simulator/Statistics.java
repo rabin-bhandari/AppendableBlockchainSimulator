@@ -23,13 +23,13 @@ import AppendableBlock.Transactions;
 
 public class Statistics {
 	
-	public static int total_blocks;
-	private static ArrayList<Object[]> chains;
-	private static ArrayList<Object[]> transactions;
-	private static ArrayList<Object[]> transactionLatencies;
-	public static double averageTransactionLatency;
-	public static double transactionThroughput;
-	public static double simulationDuration;
+	public static int total_blocks = 0;
+	private static ArrayList<Object[]> chains = new ArrayList<>();
+	private static ArrayList<Object[]> transactions = new ArrayList<>();;
+	private static ArrayList<Object[]> transactionLatencies = new ArrayList<>();;
+	public static double averageTransactionLatency = 0;
+	public static double transactionThroughput = 0;
+	public static double simulationDuration = 0;
 	
 
 // Gathers simulation data and calculates results
@@ -41,7 +41,7 @@ public class Statistics {
 	}
 
 	private static void gatewayChains() {
-		for(int i=0; i<InputConfig.getGn()-1; i++) {
+		for(int i=0; i<InputConfig.getGn(); i++) {
 			Node gatewayNode = InputConfig.getNODES().get(i);
 			for (Block b : gatewayNode.getBlockchain()) {
 				Object[] info = {
@@ -57,7 +57,7 @@ public class Statistics {
 	}
 	
 	private static void gatewayTransactions() {
-		for(int i=0; i<InputConfig.getGn()-1; i++) {
+		for(int i=0; i<InputConfig.getGn(); i++) {
 			Node gatewayNode = InputConfig.getNODES().get(i);		
 			for (Block b : gatewayNode.getBlockchain()) {
 				for (Transactions tx: b.getTransactions()) {
@@ -290,7 +290,7 @@ public class Statistics {
 		
 		// Initialise gatewayNode variables
 		
-		for (int i=0 ; i<InputConfig.getGn() -1; i++) {
+		for (int i=0 ; i<InputConfig.getGn(); i++) {
 			Node node = InputConfig.getNODES().get(i);
 			node.resetState();
 		}

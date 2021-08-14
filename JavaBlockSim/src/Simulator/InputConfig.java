@@ -50,6 +50,7 @@ public class InputConfig {
     
     public InputConfig() {
     	generateGatewayIDs();
+    	generateGateways();
     	generateNodes();
     }
     
@@ -57,19 +58,28 @@ public class InputConfig {
     
     // Generates the gateway Id's
     public void generateGatewayIDs() {
-    	for (int i = 1 ; i<getGn() ; i++) {
-    		getGATEWAY_IDS().add(String.valueOf((char)(i+64)));
+    	for (int i = 0 ; i<getGn() ; i++) {
+    		getGATEWAY_IDS().add(String.valueOf((char)(i+65)));
     	}
     }
     
-    // Creates device nodes for each gateway
-    public void generateNodes() {
-    	for (String s : getGATEWAY_IDS()) {
+    // Create all the gateways
+    public void generateGateways() {
+    	for (String s :getGATEWAY_IDS()) {
         	ArrayList<String> otherGatewayIds = new ArrayList<>(getGATEWAY_IDS());
         	otherGatewayIds.remove(otherGatewayIds.indexOf(s));
         	getNODES().add(new Node(s, "g", otherGatewayIds));
-        	for (int i = 1; i < getDn()+1 ; i++) {
-        		getNODES().add(new Node(i, "d", s));
+    	}
+    }
+
+    
+    // Creates device nodes for each gateway
+    public void generateNodes() {
+    	int deviceNodeId =1;
+    	for (String s : getGATEWAY_IDS()) {
+        	for (int j = 0; j < getDn(); j++) {
+        		getNODES().add(new Node(deviceNodeId, "d", s));
+        		deviceNodeId++;
         	}
     	}
     }

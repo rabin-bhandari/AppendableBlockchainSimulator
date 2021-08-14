@@ -18,7 +18,7 @@ public class Main {
 		
 	public void run() {
 
-		for (int i = 0; i<p.getRuns(); i++) {
+		for (int i = 0; i<InputConfig.getRuns(); i++) {
 			
 			// Initialise clock for simulation run.
 			double clock = 0;
@@ -32,20 +32,16 @@ public class Main {
 			// Initiate initial events >= 1 to start with
 			BlockCommit.generateInitialEvents();
 			
-			while (!Queue.isEmpty() && (clock <= p.getSimTime())) {
+			
+			while (!Queue.isEmpty() && (clock <= InputConfig.getSimTime())) {
 				Event nextEvent = Queue.getNextEvent();
 				
 				// Move clock to the time of the event
 				clock = nextEvent.getTime();
 				
-				try {
-					BlockCommit.handleEvent(nextEvent);
-				} catch (CloneNotSupportedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
+				BlockCommit.handleEvent(nextEvent);
 				Queue.removeEvent(nextEvent);
+
 			}
 			
 			// Process transactions

@@ -8,13 +8,13 @@ public class Network {
 	
 	// Delay for propagating transactions in the network
 	public static double txPropDelay() {
-		return Math.log(1-Math.random()/(InputConfig.getPropTxDelay()));
+		return -Math.log(1-Math.random())/(1/InputConfig.getPropTxDelay());
 	}
 	
 	
 	// Delay for propagating transactions in the network
 	public static double txListPropDelay() {
-		return Math.log(1-Math.random()/(InputConfig.getPropTxListDelay()));
+		return -Math.log(1-Math.random())/(1/InputConfig.getPropTxListDelay());
 	}
 	
 	
