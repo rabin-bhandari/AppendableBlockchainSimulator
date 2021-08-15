@@ -1,0 +1,301 @@
+package Simulator;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import AppendableBlock.Block;
+import AppendableBlock.Node;
+import AppendableBlock.Transactions;
+
+public class Statistics {
+	
+	public static int total_blocks = 0;
+	private static ArrayList<Object[]> chains = new ArrayList<>();
+	private static ArrayList<Object[]> transactions = new ArrayList<>();;
+	private static ArrayList<Object[]> transactionLatencies = new ArrayList<>();;
+	public static double averageTransactionLatency = 0;
+	public static double transactionThroughput = 0;
+	public static double simulationDuration = 0;
+	
+
+// Gathers simulation data and calculates results
+	public static void calculate() {
+		gatewayChains();
+		gatewayTransactions();
+		transactionLatency();
+		results();
+	}
+
+	private static void gatewayChains() {
+		for(int i=0; i<InputConfig.getGn(); i++) {
+			Node gatewayNode = InputConfig.getNODES().get(i);
+			for (Block b : gatewayNode.getBlockchain()) {
+				Object[] info = {
+								gatewayNode.getId(),
+								b.getDepth(),
+								b.getId(),
+								b.getPrevious(),
+								b.getTimestamp(),
+								b.getTransactions().size()};
+				chains.add(info);
+			}
+		}
+	}
+	
+	private static void gatewayTransactions() {
+		for(int i=0; i<InputConfig.getGn(); i++) {
+			Node gatewayNode = InputConfig.getNODES().get(i);		
+			for (Block b : gatewayNode.getBlockchain()) {
+				for (Transactions tx: b.getTransactions()) {
+					Object[] info = {
+									gatewayNode.getId(),
+									tx.getId(),
+									tx.getSender(),
+									tx.getTo(),
+									tx.getTimestamp()[0],
+									tx.getTimestamp()[1],
+									tx.getTimestamp()[2]};
+					transactions.add(info);
+				}
+			}
+		}
+	}
+	
+	private static void transactionLatency() {
+		ArrayList<Object[]> sortedTx = new ArrayList<>(transactions);
+		
+		//Sort transactions according to transaction ID
+		sortedTx.sort((tx1, tx2) -> Long.compare((Long) tx1[1], (Long) tx2[1]));
+		double maxInsertionTime = 0;
+		int txCount = 0;
+		
+		for (Object[] tx : sortedTx) {
+			txCount++;
+			if ((Double) tx[6] > maxInsertionTime) {
+				maxInsertionTime = (Double) tx[6];
+			}
+			
+			if (txCount % InputConfig.getGn() == 0) {
+				double latency = maxInsertionTime - (Double) tx[4];
+				Object[] info = {tx[1], latency};
+				
+				// Insert transaction Id and Latency
+				transactionLatencies.add(info);
+				maxInsertionTime = 0;
+			}
+		}
+	}
+
+	// Calculate Results
+	private static void results() {
+		// Average latency
+		double totalLatency = 0;
+		for (Object[] l : transactionLatencies) {
+			totalLatency += (Double) l[1];
+		}
+		averageTransactionLatency = totalLatency / transactionLatencies.size();
+		
+		// Obtain the earliest transaction creation time and the latest transaction insertion time
+		
+		double earliestTxCreationTime = 9999999999.0;
+		double latestTxInsertionTime = 0.0;
+		
+		for (Object[] tx : transactions) {
+			if ((double) tx[4] < earliestTxCreationTime) {
+				earliestTxCreationTime = (double) tx[4];
+			}
+			
+			if ((double) tx[6] < latestTxInsertionTime) {
+				latestTxInsertionTime = (double) tx[6];
+			}
+		}
+		
+		// Calculation Simulation Duration
+		simulationDuration = latestTxInsertionTime - earliestTxCreationTime;
+		
+		// Calculate transaction throughput (transactions per second)
+		float numberOfTx = InputConfig.getDn() * InputConfig.getGn() * InputConfig.getTn();
+		
+		transactionThroughput = numberOfTx/simulationDuration;
+		
+	}
+
+	
+	// Produce results report as Excel work sheet
+	public static void printToExcel(int simulationRunNumber, boolean detailReport) {
+		
+		// Generating DataFrames	
+		ArrayList<Object[]> df1 = new ArrayList<>();
+		df1.add(new Object[]{
+				"No. of Gateways",
+				"Total No. of Devices",
+				"Total No. of Blocks",
+				"Blocks per Chain",
+				"Max TX List Size",
+				"Total Transactions",
+				"Average Transaction Latency",
+				"Transaction Throughput",
+				"Simulation Duration (secs)"});
+		df1.add(new Object[]{
+				InputConfig.getGn(),
+				InputConfig.getGn()*InputConfig.getDn(),
+				total_blocks,
+				total_blocks/InputConfig.getGn(),
+				InputConfig.getMaxTxListSize(),
+				InputConfig.getGn()*InputConfig.getDn()*InputConfig.getTn(),
+				averageTransactionLatency,
+				transactionThroughput,
+				simulationDuration});
+		
+
+		ArrayList<Object[]> df2 = new ArrayList<>();
+		df2.add(new Object[]{
+				"No. of Gateways",
+				"No. of Devices per Gateway",
+				"Total No. of Devices",
+				"Total No. of Nodes",
+				"Transactions per Device"});
+		df2.add(new Object[]{
+				InputConfig.getGn(),
+				InputConfig.getDn(),
+				InputConfig.getGn()*InputConfig.getDn(),
+				InputConfig.getNn(),
+				InputConfig.getTn()});
+		
+		// Initialising new workbook
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		
+		// writing data frames to workbook
+		writeExcel(df1, workbook, "Results");
+		writeExcel(df2, workbook, "InputConfig");
+		
+		// Additional Data frames for detailed reports
+		if (detailReport) {
+			ArrayList<Object[]> df3 = new ArrayList<>();
+			df3.add(new Object[]{
+					"Gateway Node ID",
+					"Block Depth",
+					"Block ID",
+					"Previous Block ID",
+					"Block Timestamp",
+					"No. of Transactions"});
+			for (Object[] chain : chains) {
+				df3.add(chain);
+			}
+			
+			ArrayList<Object[]> df4 = new ArrayList<>();
+			df4.add(new Object[]{
+					"Gateway Node Id",
+					"Tx ID",
+					"Sender Node ID",
+					"Receiver Node ID",
+					"Tx Creation Time",
+					"Tx Reception Time",
+					"Tx Insertion Time"});
+			for (Object[] transaction : transactions) {
+				df4.add(transaction);
+			}
+			
+			ArrayList<Object[]> df5 = new ArrayList<>();
+			df5.add(new Object[]{
+					"TxID",
+					"Latency",
+					});
+			for (Object[] transactionLatency : transactionLatencies) {
+				df5.add(transactionLatency);
+			}
+			
+			writeExcel(df3, workbook, "GatewayBlockchains");
+			writeExcel(df4, workbook, "GatewayTransactions");
+			writeExcel(df5, workbook, "TransactionLatencies");
+		}
+		
+		String fname = "Statistics-" + 
+				LocalDateTime.now() + 
+				"-" + 
+				(simulationRunNumber+1)+
+				".xlsx";
+		
+		try (FileOutputStream outputStream = new FileOutputStream(fname)) {
+			workbook.write(outputStream);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	// Writes each Array within Data frame as a Row in the excel sheet.
+	private static void writeExcel(ArrayList<Object[]> DataFrame, XSSFWorkbook workbook, String sheetName) {
+				
+		XSSFSheet sheet = workbook.createSheet(sheetName);
+		
+		int rowCount = 0;
+		
+		for (Object[] rowData : DataFrame) {
+			XSSFRow row = sheet.createRow(++rowCount);
+			
+			int columnCount = 0;
+			for (Object field : rowData) {
+				XSSFCell cell = row.createCell(++columnCount);
+				if (field instanceof String) {
+					cell.setCellValue((String) field);
+				} else if (field instanceof Integer) {
+					cell.setCellValue((Integer) field);
+				} else if (field instanceof Double) {
+					cell.setCellValue((Double) field);
+				}
+			}
+		}
+		
+		// Cell formating for header Row	
+	    XSSFRow header = sheet.getRow(1);
+	    header.setRowStyle(workbook.createCellStyle());
+	    
+	    header.getRowStyle().getFont().setBold(true);;
+
+//		XSSFFont font = workbook.createFont();
+//	    font.setFontHeightInPoints((short)10);
+//	    font.setFontName("Arial");
+//	    font.setBold(true);
+//	    font.setItalic(false);			    
+//		style.setFont(font);
+	}
+
+	// Reset the statistics data and clear global variables ready for the next simulation run
+	public static void reset() {
+		
+		// Initialise class variables
+		total_blocks = 0;
+		chains.clear();
+		transactions.clear();
+		transactionLatencies.clear();
+		averageTransactionLatency = 0.0;
+		transactionThroughput = 0.0;
+		simulationDuration = 0.0;
+		
+		// Initialise gatewayNode variables
+		
+		for (int i=0 ; i<InputConfig.getGn(); i++) {
+			Node node = InputConfig.getNODES().get(i);
+			node.resetState();
+		}
+	}
+}

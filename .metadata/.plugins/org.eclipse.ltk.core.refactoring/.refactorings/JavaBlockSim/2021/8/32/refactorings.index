@@ -1,0 +1,7 @@
+1628965684913	Encapsulate field 'eventList'
+1628977827669	Encapsulate field 'chains'
+1628977847615	Encapsulate field 'transactions'
+1628977861515	Encapsulate field 'transactionLatencies'
+1628994885517	Encapsulate field 'nodeType'
+1628994902807	Encapsulate field 'blocks'
+1628994913000	Encapsulate field 'balance'

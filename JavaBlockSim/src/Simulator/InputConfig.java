@@ -1,5 +1,6 @@
 package Simulator;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import AppendableBlock.Node;
 
@@ -48,7 +49,9 @@ public class InputConfig {
     private static int maxTxListSize = 0;
 
     
-    public InputConfig() {
+    public static void initialise() {
+    	NODES.clear();
+    	GATEWAY_IDS.clear();
     	generateGatewayIDs();
     	generateGateways();
     	generateNodes();
@@ -57,14 +60,14 @@ public class InputConfig {
     
     
     // Generates the gateway Id's
-    public void generateGatewayIDs() {
+    public static void generateGatewayIDs() {
     	for (int i = 0 ; i<getGn() ; i++) {
     		getGATEWAY_IDS().add(String.valueOf((char)(i+65)));
     	}
     }
     
     // Create all the gateways
-    public void generateGateways() {
+    public static void generateGateways() {
     	for (String s :getGATEWAY_IDS()) {
         	ArrayList<String> otherGatewayIds = new ArrayList<>(getGATEWAY_IDS());
         	otherGatewayIds.remove(otherGatewayIds.indexOf(s));
@@ -74,11 +77,11 @@ public class InputConfig {
 
     
     // Creates device nodes for each gateway
-    public void generateNodes() {
+    public static void generateNodes() {
     	int deviceNodeId =1;
     	for (String s : getGATEWAY_IDS()) {
         	for (int j = 0; j < getDn(); j++) {
-        		getNODES().add(new Node(deviceNodeId, "d", s));
+        		getNODES().add(new Node(deviceNodeId, "d", new ArrayList<>(Arrays.asList(s))));
         		deviceNodeId++;
         	}
     	}

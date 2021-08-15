@@ -4,14 +4,29 @@ public class Transactions {
 		
 	private long id = 0;
 	private double[] timestamp = null;
-	private int sender = 0;
-	private String to;
+	private Object senderId;
+	private Object to;
 	private int value = 0;
 	private double size = 0.000546;
 	private int fee = 0;
 	private long previous = -1;
 	
 	
+	
+	public Transactions(Transactions t) {
+		id = t.id;
+		timestamp = t.timestamp;
+		senderId = t.senderId;
+		to = t.to;
+		value = t.value;
+		size = t.size;
+		fee = t.fee;
+		previous = t.previous;
+	}
+	
+	public Transactions() {
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -39,32 +54,28 @@ public class Transactions {
 	/**
 	 * @return the sender
 	 */
-	public int getSender() {
-		return sender;
+	public Object getSender() {
+		return senderId;
 	}
 	/**
-	 * @param id the sender to set
+	 * @param senderId the sender to set
 	 */
-	public void setSender(int id) {
-		this.sender = id;
+	public void setSender(Object senderId) {
+		this.senderId = senderId;
 	}
 	/**
 	 * @return the to
 	 */
-	public String getTo() {
+	public Object getTo() {
 		return to;
 	}
 	/**
 	 * @param object the to to set
 	 */
-	public void setTo(String to) {
+	public void setTo(Object to) {
 		this.to = to;
 	}
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
-	}
+
 	/**
 	 * @return the previous
 	 */
@@ -77,7 +88,6 @@ public class Transactions {
 	public void setPrevious(long l) {
 		this.previous = l;
 	}
-	
 	
 }
 

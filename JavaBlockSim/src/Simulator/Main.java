@@ -1,15 +1,11 @@
 package Simulator;
 
 import AppendableBlock.BlockCommit;
-import AppendableBlock.Consensus;
 import AppendableBlock.FullTransaction;
 import AppendableBlock.Node;
-import AppendableBlock.Verification;
 
 public class Main {
-	
-	private final InputConfig p = new InputConfig();
-
+		
 	public static void main(String[] args) {
 		
 		new Main().run();
@@ -17,11 +13,16 @@ public class Main {
 	}
 		
 	public void run() {
+		
 
 		for (int i = 0; i<InputConfig.getRuns(); i++) {
-			
+			System.out.println(i+1);
+			// Initialise input configurations
+			InputConfig.initialise();
+
 			// Initialise clock for simulation run.
 			double clock = 0;
+			
 			
 			// Generate pending transactions
 			FullTransaction.createTransactions();
@@ -32,9 +33,8 @@ public class Main {
 			// Initiate initial events >= 1 to start with
 			BlockCommit.generateInitialEvents();
 			
-			
 			while (!Queue.isEmpty() && (clock <= InputConfig.getSimTime())) {
-				Event nextEvent = Queue.getNextEvent();
+				Event nextEvent = Queue.getNextEvent(); 
 				
 				// Move clock to the time of the event
 				clock = nextEvent.getTime();
@@ -44,14 +44,9 @@ public class Main {
 
 			}
 			
-			// Process transactions
-			try {
-				BlockCommit.processGateawayTransactionPools();
-			} catch (CloneNotSupportedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			
+			BlockCommit.processGateawayTransactionPools();
+
 			// ############## NEEDS TO BE IMPLEMENTED ################
 			
 //			// Verify the model
@@ -60,27 +55,19 @@ public class Main {
 //			} // Line 64 in main.py
 			
 			
-			// ############## CONSENSUS NOT NEEDED FOR APPENDABLEBLOCK ##############
-			
-			// Apply the longest chain to resolve the forks
-//			Consensus.forkResolution();
-			
-			
-			// ############## NO INCENTIVES IN APPENDABLE BLOCK ##############
-			
-			// Distribute rewards between the participating nodes
-//			Incentives.distributeRewards();
-			
-			// Calculate the simulation results (e.g block statistics and miners' rewards)
+
+			// Calculate the simulation results (e.g block statistics)
 			Statistics.calculate();
 			
-			// Print results
-			Statistics.printToExcel(i, true);
 			
+			// Save results to excel file
+			ExcelWriter.printToExcel(i, true);
+			
+			System.out.println("run complete");
+			System.out.println("");
+
 			// Reset global variables before next run
 			Statistics.reset();
-			
-			
 			
 		}
 		

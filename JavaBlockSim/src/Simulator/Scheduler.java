@@ -24,7 +24,6 @@ public class Scheduler {
 			
 			// Create the event
 			Event event = new Event(eventType, node.getId(), eventTime, block);
-			
 			// Append the event to the event list
 			Queue.addEvent(event);
 		}
@@ -42,6 +41,7 @@ public class Scheduler {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public static void appendTxListEvent(ArrayList<Transactions> txList, Object gatewayId, double txTokenTime, double eventTime) {
 		String eventType = "append_tx_list";
 		if (eventTime <= InputConfig.getSimTime()) {
@@ -57,6 +57,7 @@ public class Scheduler {
 	
 	
 	// Schedule a transaction list receiving event for a gateway
+	@SuppressWarnings("unchecked")
 	public static void receiveTxListEvent(ArrayList<Transactions> txList, Object gatewayId, double txTokenTime, double eventTime) {
        String eventType = "receive_tx_list";
 		if (eventTime <= InputConfig.getSimTime()) {

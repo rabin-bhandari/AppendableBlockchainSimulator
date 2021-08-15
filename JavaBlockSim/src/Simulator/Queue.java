@@ -6,23 +6,31 @@ public class Queue {
 	private static ArrayList<Event> eventList = new ArrayList<>();
 	
 	public static void addEvent(Event e) {
-		eventList.add(e);
+		getEventList().add(e);
 	}
 	
 	public static void removeEvent(Event e) {
-		eventList.remove(eventList.indexOf(e));
+		getEventList().remove(getEventList().indexOf(e));
 	}
 	
 	public static Event getNextEvent() {
-		eventList.sort((t1, t2) -> Double.compare(t1.getTime(), t2.getTime()));
-		return eventList.get(0);	
+		getEventList().sort((t1, t2) -> Double.compare(t1.getTime(), t2.getTime()));
+		return getEventList().get(0);	
 	}
 	
 	public static int size() {
-		return eventList.size();
+		return getEventList().size();
 	}
 	
 	public static boolean isEmpty() {
-		return eventList.size() == 0;
+		return getEventList().size() == 0;
+	}
+
+	public static ArrayList<Event> getEventList() {
+		return eventList;
+	}
+
+	public static void setEventList(ArrayList<Event> eventList) {
+		Queue.eventList = eventList;
 	}
 }

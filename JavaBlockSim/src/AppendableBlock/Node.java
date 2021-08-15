@@ -1,7 +1,6 @@
 package AppendableBlock;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import Simulator.InputConfig;
 
@@ -9,14 +8,14 @@ public class Node {
 	
 	private final Object id;
 	private final String nodeType;
-	private final Object gatewayIDs;
+	private final ArrayList<String> gatewayIDs;
 	private final ArrayList<Block> blockchain;
 	private final ArrayList<Transactions> transactionsPool;
 	private final int blocks;
 	private final int balance;
 
 
-	public Node(Object nodeID, String nodeType, Object gatewayIDs) {
+	public Node(Object nodeID, String nodeType, ArrayList<String> gatewayIDs) {
 		
 		this.id = nodeID; 
 		this.nodeType = nodeType;
@@ -64,7 +63,7 @@ public class Node {
 		return id;
 	}
 	
-	public Object getGatewayIds() {
+	public ArrayList<String> getGatewayIds() {
 		return gatewayIDs;
 	}
 	
@@ -74,6 +73,18 @@ public class Node {
 	 */
 	public ArrayList<Block> getBlockchain() {
 		return blockchain;
+	}
+
+	public String getNodeType() {
+		return nodeType;
+	}
+
+	public int getBlocks() {
+		return blocks;
+	}
+
+	public int getBalance() {
+		return balance;
 	}
 
 }
